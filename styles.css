@@ -1,0 +1,953 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+}
+
+#game-container {
+    width: 800px;
+    height: 600px;
+    overflow: hidden;
+    position: relative;
+    background: linear-gradient(180deg, #87CEEB 0%, #1E90FF 100%);
+    transform-origin: center;
+    transform: scale(var(--scale-ratio, 1));
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+@media (max-height: 600px) {
+    #game-container {
+        --scale-ratio: calc(100vh / 600);
+    }
+}
+
+@media (max-width: 800px) {
+    #game-container {
+        --scale-ratio: calc(100vw / 800);
+    }
+}
+
+.menu {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 100;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 3rem;
+    border-radius: 25px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    min-width: 320px;
+    animation: menuFloat 3s ease-in-out infinite;
+}
+
+.menu h1 {
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+    font-size: 3em;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    background: linear-gradient(45deg, #2c3e50, #3498db);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.menu h2 {
+    color: #e74c3c;
+    font-size: 2.5em;
+    margin-bottom: 1.5rem;
+    text-transform: uppercase;
+    font-weight: 800;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.menu p {
+    color: #7f8c8d;
+    font-size: 1.2rem;
+    margin: 1.5rem 0;
+    font-weight: 500;
+    letter-spacing: 1px;
+}
+
+button {
+    padding: 1.2rem 2.5rem;
+    font-size: 1.3rem;
+    background: linear-gradient(45deg, #3498db, #2980b9);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    margin: 1.5rem 0;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: 700;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+button:hover {
+    background: linear-gradient(45deg, #2980b9, #3498db);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+button:active {
+    transform: translateY(1px);
+}
+
+button::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        45deg,
+        transparent,
+        rgba(255, 255, 255, 0.1),
+        transparent
+    );
+    transform: rotate(45deg);
+    transition: 0.5s;
+}
+
+button:hover::after {
+    left: 100%;
+}
+
+@keyframes menuFloat {
+    0%, 100% {
+        transform: translate(-50%, -50%);
+    }
+    50% {
+        transform: translate(-50%, -52%);
+    }
+}
+
+#score {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 4rem;
+    font-weight: 800;
+    color: white;
+    text-shadow: 2px 2px 0 #000,
+                -2px -2px 0 #000,
+                2px -2px 0 #000,
+                -2px 2px 0 #000;
+    transition: transform 0.2s ease;
+    z-index: 10;
+}
+
+#bird {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(45deg, #f1c40f, #f39c12);
+    position: absolute;
+    left: 50px;
+    border-radius: 50%;
+    transform: rotate(0deg);
+    transition: transform 0.1s;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    animation: birdBreathing 2s ease-in-out infinite;
+}
+
+.pipe {
+    position: absolute;
+    width: 60px;
+    background: linear-gradient(90deg, #27ae60, #2ecc71);
+    border: 3px solid #219a52;
+    transform-origin: left;
+    will-change: transform;
+    left: 0;
+    box-shadow: inset -2px 0 5px rgba(0, 0, 0, 0.2);
+    animation: subtlePipeTop 2s ease-in-out infinite;
+}
+
+.pipe.top {
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    top: 0;
+    animation: subtlePipeTop 2s ease-in-out infinite;
+}
+
+.pipe.bottom {
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    bottom: 100px;
+    animation: subtlePipeBottom 2s ease-in-out infinite;
+}
+
+.hidden {
+    display: none;
+}
+
+.background {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.layer {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-repeat: repeat-x;
+}
+
+.layer-1 {
+    background: linear-gradient(transparent 50%, #2ecc71 50%);
+    animation: parallax-1 7s linear infinite;
+}
+
+.layer-2 {
+    background: url('data:image/svg+xml,<svg width="50" height="50" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg"><circle cx="25" cy="25" r="8" fill="white" opacity="0.5"/></svg>');
+    animation: parallax-2 15s linear infinite;
+}
+
+.layer-3 {
+    background: url('data:image/svg+xml,<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect x="40" y="40" width="20" height="20" fill="white" opacity="0.3"/></svg>');
+    animation: parallax-3 30s linear infinite;
+}
+
+@keyframes parallax-1 {
+    from { background-position: 0 0; }
+    to { background-position: -1000px 0; }
+}
+
+@keyframes parallax-2 {
+    from { background-position: 0 0; }
+    to { background-position: -1000px 0; }
+}
+
+@keyframes parallax-3 {
+    from { background-position: 0 0; }
+    to { background-position: -1000px 0; }
+}
+
+/* Bird animations */
+#bird {
+    transition: transform 0.1s ease-in-out;
+}
+
+.flap {
+    animation: flap 0.2s ease-in-out !important;
+}
+
+@keyframes flap {
+    0% { 
+        transform: scale(1) rotate(0deg);
+    }
+    50% { 
+        transform: scale(1.15) rotate(-10deg);
+    }
+    100% { 
+        transform: scale(1) rotate(0deg);
+    }
+}
+
+.death {
+    animation: death 1s ease-in-out;
+}
+
+@keyframes death {
+    0% { transform: rotate(0) scale(1); filter: brightness(1); }
+    25% { transform: rotate(90deg) scale(1.1); filter: brightness(1.2); }
+    50% { transform: rotate(180deg) scale(1); filter: brightness(0.8); }
+    75% { transform: rotate(270deg) scale(0.9); filter: brightness(0.6); }
+    100% { transform: rotate(360deg) scale(0.8); filter: brightness(0.4); }
+}
+
+/* Game container shake effect */
+.shake {
+    animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0) scale(var(--scale-ratio, 1)); }
+    25% { transform: translateX(-5px) scale(var(--scale-ratio, 1)); }
+    75% { transform: translateX(5px) scale(var(--scale-ratio, 1)); }
+}
+
+/* Menu transitions */
+.menu {
+    transition: opacity 0.3s ease-in-out;
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { 
+        opacity: 0; 
+        transform: translate(-50%, -40%);
+        filter: blur(10px);
+    }
+    to { 
+        opacity: 1; 
+        transform: translate(-50%, -50%);
+        filter: blur(0);
+    }
+}
+
+/* Pipe transitions */
+.pipe {
+    transition: left 0.016s linear;
+}
+
+/* Score animation */
+#score {
+    transition: transform 0.2s ease-in-out;
+}
+
+/* Score increment animation */
+@keyframes scoreIncrement {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+/* Background layers - ensure they stay visible */
+#game.hidden .background {
+    display: block !important;
+}
+
+#game.hidden {
+    display: block !important;
+}
+
+#game.hidden #bird,
+#game.hidden .pipe {
+    display: none;
+}
+
+/* Update the ground styles */
+#ground {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 100px;
+    z-index: 2;
+    background-color: #deb887; /* Light brown base */
+    /* Create two-layer effect */
+    background-image: 
+        /* Green carpet layer */
+        linear-gradient(
+            to bottom,
+            #4caf50 0%,    /* Bright green */
+            #388e3c 20px,  /* Darker green for depth */
+            transparent 20px
+        ),
+        /* Dirt texture */
+        repeating-linear-gradient(
+            45deg,
+            #deb887 0px,   /* Light brown */
+            #d2a679 4px,   /* Slightly darker brown */
+            #deb887 8px
+        );
+    background-blend-mode: normal, multiply;
+    animation: groundMove 3s linear infinite;
+    box-shadow: 
+        inset 0 20px 8px -10px rgba(0,0,0,0.2),  /* Top shadow */
+        inset 0 -20px 8px -10px rgba(0,0,0,0.2); /* Bottom shadow */
+}
+
+@keyframes groundMove {
+    from {
+        background-position: 
+            0 0,
+            0 0;
+    }
+    to {
+        background-position: 
+            -100px 0,
+            -50px 0;
+    }
+}
+
+/* Add subtle floating animation for pipes */
+@keyframes pipeFloat {
+    0%, 100% {
+        transform: translateY(0) translateX(var(--x, 0));
+    }
+    50% {
+        transform: translateY(-3px) translateX(var(--x, 0));
+    }
+}
+
+/* Add hover effect for pipes */
+.pipe:hover {
+    filter: brightness(1.1);
+    transition: filter 0.3s ease;
+}
+
+@keyframes subtlePipeTop {
+    0%, 100% {
+        border-bottom-width: 3px;
+    }
+    50% {
+        border-bottom-width: 5px;
+    }
+}
+
+@keyframes subtlePipeBottom {
+    0%, 100% {
+        border-top-width: 3px;
+    }
+    50% {
+        border-top-width: 5px;
+    }
+}
+
+/* Add breathing animation */
+@keyframes birdBreathing {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+/* Add these new styles for monitor effect */
+#monitor {
+    position: relative;
+    padding: 20px;
+    transition: all 0.3s ease;
+}
+
+.monitor-frame {
+    background: #2c3e50;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.monitor-screen {
+    position: relative;
+    background: transparent;
+    border-radius: 5px;
+    overflow: hidden;
+    box-shadow: none;
+}
+
+.monitor-screen::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        rgba(255, 255, 255, 0.05) 0%,
+        rgba(255, 255, 255, 0.02) 50%,
+        rgba(0, 0, 0, 0.02) 50%,
+        rgba(0, 0, 0, 0.05) 100%
+    );
+    pointer-events: none;
+    z-index: 10;
+}
+
+.monitor-base {
+    height: 30px;
+    background: #34495e;
+    margin: 0 auto;
+    width: 50%;
+    border-radius: 0 0 10px 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Toggle switch styles */
+.options-panel {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 10px 20px;
+    border-radius: 25px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: #2196F3;
+}
+
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+
+/* Monitor frame disabled state */
+.monitor-frame.disabled {
+    background: none;
+    padding: 0;
+    box-shadow: none;
+}
+
+.monitor-frame.disabled .monitor-base {
+    display: none;
+}
+
+.monitor-frame.disabled .monitor-screen::before {
+    display: none;
+}
+
+/* Add these styles for the credit text */
+.credit {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    color: white;
+    font-size: 1rem;
+    opacity: 0.6;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    pointer-events: none;
+    user-select: none;
+    z-index: 1000;
+}
+
+/* Add decorative elements to menu */
+.menu::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, #3498db, #2ecc71, #3498db);
+    z-index: -1;
+    border-radius: 26px;
+    filter: blur(10px);
+    opacity: 0.5;
+}
+
+/* Space key hint style */
+.menu .space-hint {
+    background: rgba(0, 0, 0, 0.1);
+    padding: 0.8rem 1.5rem;
+    border-radius: 15px;
+    font-size: 1rem;
+    color: #666;
+    display: inline-block;
+    margin-top: 1rem;
+}
+
+/* Game over score display */
+#final-score {
+    font-size: 3em;
+    font-weight: 800;
+    color: #e74c3c;
+    display: block;
+    margin: 1rem 0;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Update explosion styles */
+@keyframes explode {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(0);
+        opacity: 0;
+    }
+}
+
+.particle {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: linear-gradient(45deg, #ffd700, #ffa500);
+    border-radius: 50%;
+    pointer-events: none;
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+    z-index: 5;
+}
+
+@keyframes particleWithCollision {
+    0% {
+        transform: translate(0, 0) rotate(0deg);
+        opacity: 1;
+        scale: 1;
+    }
+    40% {
+        transform: translate(
+            calc(var(--tx) * 0.6),
+            calc(var(--ty) * 0.6)
+        ) rotate(calc(var(--rot) * 0.6));
+        opacity: 0.8;
+        scale: 1.1;
+    }
+    50% {
+        transform: translate(
+            calc(var(--tx) * 0.7),
+            calc(var(--ty))
+        ) rotate(calc(var(--rot) * 0.8));
+        opacity: 0.7;
+        scale: 0.9;
+    }
+    60% {
+        transform: translate(
+            calc(var(--tx) * 0.8),
+            calc(var(--ty) + var(--bounce-height))
+        ) rotate(calc(var(--rot) * 0.9));
+        opacity: 0.6;
+        scale: 0.8;
+    }
+    100% {
+        transform: translate(
+            var(--tx),
+            calc(var(--ty))
+        ) rotate(var(--rot));
+        opacity: 0;
+        scale: 0.5;
+    }
+}
+
+/* Add these styles for high score display */
+#high-score {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    font-size: 2rem;
+    font-weight: 700;
+    color: white;
+    text-shadow: 2px 2px 0 #000,
+                -2px -2px 0 #000,
+                2px -2px 0 #000,
+                -2px 2px 0 #000;
+    z-index: 10;
+}
+
+.high-score {
+    color: #e67e22;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 1rem 0;
+}
+
+#new-high-score {
+    color: #f1c40f;
+    font-size: 1.8rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    margin: 1rem 0;
+    animation: pulse 1s ease-in-out infinite;
+    text-shadow: 0 0 10px rgba(241, 196, 15, 0.5);
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+/* Update leaderboard styles */
+.leaderboard {
+    position: fixed;
+    left: -180px;
+    bottom: 80px;
+    transform: translateY(0);
+    background: rgba(255, 255, 255, 0.2);
+    padding: 1.5rem;
+    border-radius: 0 15px 15px 0;
+    width: 200px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    z-index: 9999;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(2px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+}
+
+/* Enhanced hover effect */
+.leaderboard:hover {
+    transform: translateX(180px);
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 5px 0 30px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Make text more visible on hover */
+.leaderboard h3 {
+    opacity: 0.7;
+    transition: all 0.3s ease;
+}
+
+.leaderboard:hover h3 {
+    opacity: 1;
+}
+
+.leaderboard-entry {
+    opacity: 0.7;
+    transition: all 0.3s ease;
+}
+
+.leaderboard:hover .leaderboard-entry {
+    opacity: 1;
+}
+
+/* Update the indicator for leaderboard */
+.leaderboard::after {
+    content: '▶';
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+    opacity: 0.5;
+    color: #3498db;
+}
+
+.leaderboard:hover::after {
+    transform: translateY(-50%) rotate(180deg);
+    opacity: 1;
+    color: #2980b9;
+}
+
+.name-popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.popup-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 15px;
+    text-align: center;
+    animation: popIn 0.3s ease-out;
+}
+
+@keyframes popIn {
+    from {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.popup-content h3 {
+    color: #2c3e50;
+    margin-bottom: 1rem;
+}
+
+.popup-content input {
+    padding: 0.8rem;
+    margin: 1rem 0;
+    border: 2px solid #3498db;
+    border-radius: 5px;
+    width: 200px;
+    font-size: 1rem;
+}
+
+.popup-content input:focus {
+    outline: none;
+    border-color: #2980b9;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* Add these styles for the reset popup */
+.button-group {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.danger-button {
+    background: linear-gradient(45deg, #e74c3c, #c0392b);
+}
+
+.danger-button:hover {
+    background: linear-gradient(45deg, #c0392b, #e74c3c);
+}
+
+/* Update reset popup styles */
+#reset-popup .popup-content {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 3rem;
+    border-radius: 20px;
+    text-align: center;
+    animation: popIn 0.3s ease-out;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    min-width: 350px;
+}
+
+#reset-popup h3 {
+    color: #e74c3c;
+    font-size: 2em;
+    margin-bottom: 1.5rem;
+    text-transform: uppercase;
+    font-weight: 800;
+    background: linear-gradient(45deg, #e74c3c, #c0392b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#reset-popup p {
+    color: #34495e;
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+    line-height: 1.5;
+}
+
+#reset-popup .button-group {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+#reset-popup .danger-button {
+    background: linear-gradient(45deg, #e74c3c, #c0392b);
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    border-radius: 30px;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+}
+
+#reset-popup .danger-button:hover {
+    background: linear-gradient(45deg, #c0392b, #e74c3c);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+}
+
+#reset-popup #cancel-reset {
+    background: linear-gradient(45deg, #95a5a6, #7f8c8d);
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    border-radius: 30px;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+}
+
+#reset-popup #cancel-reset:hover {
+    background: linear-gradient(45deg, #7f8c8d, #95a5a6);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(127, 140, 141, 0.4);
+}
+
+/* Update popup animation */
+@keyframes popIn {
+    0% {
+        transform: scale(0.8) translateY(20px);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Add warning icon animation */
+#reset-popup .popup-content::before {
+    content: '⚠️';
+    font-size: 3em;
+    display: block;
+    margin-bottom: 1rem;
+    animation: warningPulse 2s infinite;
+}
+
+@keyframes warningPulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 0.8;
+    }
+} 

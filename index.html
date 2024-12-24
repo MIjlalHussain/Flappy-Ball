@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flappy Bird</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body oncopy="return false" oncut="return false" onpaste="return false">
+    <div id="monitor">
+        <div class="monitor-frame">
+            <div class="monitor-screen">
+                <div id="game-container">
+                    <div id="leaderboard" class="leaderboard">
+                        <h3>Top Scores</h3>
+                        <div id="leaderboard-list"></div>
+                    </div>
+                    <div id="main-menu" class="menu">
+                        <h1>Flappy Bird</h1>
+                        <div class="high-score">High Score: <span id="menu-high-score">0</span></div>
+                        <button id="start-button">Start Game</button>
+                        <div class="space-hint">
+                            <span>Press SPACE to jump</span>
+                        </div>
+                    </div>
+                    
+                    <div id="game" class="hidden">
+                        <div class="background">
+                            <div class="layer layer-1"></div>
+                            <div class="layer layer-2"></div>
+                            <div class="layer layer-3"></div>
+                        </div>
+                        <div id="ground"></div>
+                        <div id="bird"></div>
+                        <div id="score">0</div>
+                        <div id="high-score">Best: 0</div>
+                    </div>
+                    
+                    <div id="game-over" class="menu hidden">
+                        <h2>Game Over</h2>
+                        <p>Your Score</p>
+                        <span id="final-score">0</span>
+                        <div class="high-score">High Score: <span id="game-over-high-score">0</span></div>
+                        <div id="new-high-score" class="hidden">New High Score!</div>
+                        <button id="restart-button">Play Again</button>
+                    </div>
+                </div>
+            </div>
+            <div class="monitor-base"></div>
+        </div>
+    </div>
+    <div id="toggle-monitor" class="options-panel">
+        <label class="switch">
+            <input type="checkbox" id="monitor-toggle" checked>
+            <span class="slider"></span>
+        </label>
+        <span>Monitor Frame</span>
+    </div>
+    <div class="credit">Made by Your Name</div>
+    <div id="name-popup" class="name-popup hidden">
+        <div class="popup-content">
+            <h3>New High Score!</h3>
+            <p>Enter your name:</p>
+            <input type="text" id="player-name" maxlength="15" placeholder="Your name">
+            <button id="submit-score">Submit</button>
+        </div>
+    </div>
+    <div id="reset-popup" class="name-popup hidden">
+        <div class="popup-content">
+            <h3>Reset High Scores</h3>
+            <p>Are you sure you want to reset all high scores?</p>
+            <div class="button-group">
+                <button id="confirm-reset" class="danger-button">Reset</button>
+                <button id="cancel-reset">Cancel</button>
+            </div>
+        </div>
+    </div>
+    <script src="game.js"></script>
+</body>
+</html> 
